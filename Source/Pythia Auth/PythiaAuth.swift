@@ -47,14 +47,14 @@ public protocol PythiaAuthProtocol: class {
 open class PythiaAuth: NSObject, PythiaAuthProtocol {
     let config: PythiaConfig
     let client: PythiaClientProtocol
-    let pythiaCrypto: PythiaCryptoProtocol
     let accessTokenProvider: AccessTokenProvider
+    let pythiaCrypto: PythiaCryptoProtocol // FIXME: This should be removed after Pythia crypto operations are available in VirgilCrypto
     
-    init(config: PythiaConfig, client: PythiaClientProtocol, pythiaCrypto: PythiaCryptoProtocol, accessTokenProvider: AccessTokenProvider) {
+    init(config: PythiaConfig, client: PythiaClientProtocol = PythiaClient(), accessTokenProvider: AccessTokenProvider, pythiaCrypto: PythiaCryptoProtocol) {
         self.config = config
         self.client = client
-        self.pythiaCrypto = pythiaCrypto
         self.accessTokenProvider = accessTokenProvider
+        self.pythiaCrypto = pythiaCrypto
         
         super.init()
     }
