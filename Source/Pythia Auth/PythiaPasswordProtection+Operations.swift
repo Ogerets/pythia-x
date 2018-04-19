@@ -37,7 +37,7 @@
 import Foundation
 import VirgilSDK
 
-extension PythiaAuth {
+extension PythiaPasswordProtection {
     func makeTransformOperation(blindedPassword: Data, salt: Data, version: Int, proof: Bool) -> GenericOperation<TransformResponse> {
         return CallbackOperation { operation, completion in
             do {

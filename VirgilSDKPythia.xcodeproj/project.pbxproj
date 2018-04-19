@@ -12,9 +12,9 @@
 		420120F7207625F500632FD9 /* PythiaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120F1207625F400632FD9 /* PythiaClient.swift */; };
 		420120F8207625F500632FD9 /* TransformResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120F3207625F400632FD9 /* TransformResponse.swift */; };
 		420120FA207625F500632FD9 /* PythiaClient+Queries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120F5207625F400632FD9 /* PythiaClient+Queries.swift */; };
-		420120FD2076294F00632FD9 /* PythiaAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120FC2076294F00632FD9 /* PythiaAuth.swift */; };
+		420120FD2076294F00632FD9 /* PythiaPasswordProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120FC2076294F00632FD9 /* PythiaPasswordProtection.swift */; };
 		420120FF20762D1C00632FD9 /* OperationsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420120FE20762D1C00632FD9 /* OperationsUtils.swift */; };
-		4201210120764AB500632FD9 /* PythiaAuth+Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4201210020764AB500632FD9 /* PythiaAuth+Operations.swift */; };
+		4201210120764AB500632FD9 /* PythiaPasswordProtection+Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4201210020764AB500632FD9 /* PythiaPasswordProtection+Operations.swift */; };
 		4201210520779A3300632FD9 /* Proof.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4201210420779A3300632FD9 /* Proof.swift */; };
 		4201210B2077C1E800632FD9 /* PythiaCryptoProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4201210A2077C1E800632FD9 /* PythiaCryptoProtocol.swift */; };
 		4201210E2077C21300632FD9 /* PythiaUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4201210D2077C21300632FD9 /* PythiaUser.swift */; };
@@ -275,9 +275,9 @@
 		420120F1207625F400632FD9 /* PythiaClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PythiaClient.swift; sourceTree = "<group>"; };
 		420120F3207625F400632FD9 /* TransformResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformResponse.swift; sourceTree = "<group>"; };
 		420120F5207625F400632FD9 /* PythiaClient+Queries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PythiaClient+Queries.swift"; sourceTree = "<group>"; };
-		420120FC2076294F00632FD9 /* PythiaAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythiaAuth.swift; sourceTree = "<group>"; };
+		420120FC2076294F00632FD9 /* PythiaPasswordProtection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythiaPasswordProtection.swift; sourceTree = "<group>"; };
 		420120FE20762D1C00632FD9 /* OperationsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationsUtils.swift; sourceTree = "<group>"; };
-		4201210020764AB500632FD9 /* PythiaAuth+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PythiaAuth+Operations.swift"; sourceTree = "<group>"; };
+		4201210020764AB500632FD9 /* PythiaPasswordProtection+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PythiaPasswordProtection+Operations.swift"; sourceTree = "<group>"; };
 		4201210420779A3300632FD9 /* Proof.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proof.swift; sourceTree = "<group>"; };
 		4201210A2077C1E800632FD9 /* PythiaCryptoProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythiaCryptoProtocol.swift; sourceTree = "<group>"; };
 		4201210D2077C21300632FD9 /* PythiaUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythiaUser.swift; sourceTree = "<group>"; };
@@ -338,8 +338,8 @@
 		420120FB2076263700632FD9 /* Pythia Auth */ = {
 			isa = PBXGroup;
 			children = (
-				420120FC2076294F00632FD9 /* PythiaAuth.swift */,
-				4201210020764AB500632FD9 /* PythiaAuth+Operations.swift */,
+				420120FC2076294F00632FD9 /* PythiaPasswordProtection.swift */,
+				4201210020764AB500632FD9 /* PythiaPasswordProtection+Operations.swift */,
 			);
 			path = "Pythia Auth";
 			sourceTree = "<group>";
@@ -797,10 +797,10 @@
 				420120F6207625F500632FD9 /* PythiaClientProtocol.swift in Sources */,
 				420120FF20762D1C00632FD9 /* OperationsUtils.swift in Sources */,
 				420120F7207625F500632FD9 /* PythiaClient.swift in Sources */,
-				420120FD2076294F00632FD9 /* PythiaAuth.swift in Sources */,
+				420120FD2076294F00632FD9 /* PythiaPasswordProtection.swift in Sources */,
 				4201210520779A3300632FD9 /* Proof.swift in Sources */,
 				4267C61C2084E21F007EAEB2 /* PythiaConfig.swift in Sources */,
-				4201210120764AB500632FD9 /* PythiaAuth+Operations.swift in Sources */,
+				4201210120764AB500632FD9 /* PythiaPasswordProtection+Operations.swift in Sources */,
 				420120F8207625F500632FD9 /* TransformResponse.swift in Sources */,
 				4201210B2077C1E800632FD9 /* PythiaCryptoProtocol.swift in Sources */,
 				4201210E2077C21300632FD9 /* PythiaUser.swift in Sources */,

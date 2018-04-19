@@ -37,14 +37,13 @@
 import Foundation
 import VirgilSDK
 
-public protocol PythiaAuthProtocol: class {
+public protocol PythiaPasswordProtectionProtocol: class {
     func authenticate(password: String, pythiaUser: PythiaUser, proof: Bool) -> GenericOperation<Bool>
     func register(password: String) -> GenericOperation<PythiaUser>
     func rotateSecret(newVersion: Int, updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser
-    func changePassword(for pythiaUser: PythiaUser, newPassword: String) -> GenericOperation<PythiaUser>
 }
 
-open class PythiaAuth: NSObject, PythiaAuthProtocol {
+open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol {
     let config: PythiaConfig
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
@@ -57,62 +56,6 @@ open class PythiaAuth: NSObject, PythiaAuthProtocol {
         self.pythiaCrypto = pythiaCrypto
         
         super.init()
-    }
-    
-    open func changePassword(for pythiaUser: PythiaUser, newPassword: String) -> GenericOperation<PythiaUser> {
-        return CallbackOperation { _, completion in
-            let salt: Data
-            let blindedPassword: Data
-            let blindingSecret: Data
-            do {
-                let blinded = try self.pythiaCrypto.blind(password: newPassword)
-                blindedPassword = blinded.0
-                blindingSecret = blinded.1
-                
-                salt = try self.pythiaCrypto.generateSalt()
-            }
-            catch {
-                completion(nil, error)
-                return
-            }
-            
-            // TODO: Update TokenContext
-            let tokenContext = TokenContext(operation: "get", forceReload: false)
-            let getTokenOperation = OperationsUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
-            let latestTransformationPublicKey = self.config.transformationPublicKey
-            let transformOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: salt, version: latestTransformationPublicKey.0, proof: true)
-            let verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: salt, transformationPublicKey: latestTransformationPublicKey.1)
-            let finishRegistrationOperation = CallbackOperation<PythiaUser> { operation, completion in
-                do {
-                    let transformResponse: TransformResponse = try operation.findDependencyResult()
-                    
-                    let deblindedPassword = try self.pythiaCrypto.deblind(transformedPassword: transformResponse.transformedPassword, blindingSecret: blindingSecret)
-                    
-                    let registrationResponse = PythiaUser(salt: salt, deblindedPassword: deblindedPassword, version: latestTransformationPublicKey.0)
-                    
-                    completion(registrationResponse, nil)
-                }
-                catch {
-                    completion(nil, error)
-                }
-            }
-            
-            let completionOperation = OperationsUtils.makeCompletionOperation(completion: completion)
-            
-            transformOperation.addDependency(getTokenOperation)
-            
-            verifyOperation.addDependency(transformOperation)
-            finishRegistrationOperation.addDependency(transformOperation)
-            
-            completionOperation.addDependency(getTokenOperation)
-            completionOperation.addDependency(transformOperation)
-            completionOperation.addDependency(verifyOperation)
-            completionOperation.addDependency(finishRegistrationOperation)
-            
-            let queue = OperationQueue()
-            let operations = [getTokenOperation, transformOperation, verifyOperation, finishRegistrationOperation, completionOperation]
-            queue.addOperations(operations, waitUntilFinished: false)
-        }
     }
     
     open func rotateSecret(newVersion: Int, updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
