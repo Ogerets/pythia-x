@@ -37,13 +37,7 @@
 import Foundation
 import VirgilSDK
 
-public protocol PythiaPasswordProtectionProtocol: class {
-    func authenticate(password: String, pythiaUser: PythiaUser, proof: Bool) -> GenericOperation<Bool>
-    func register(password: String) -> GenericOperation<PythiaUser>
-    func rotateSecret(newVersion: Int, updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser
-}
-
-open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol {
+open class Pythia: NSObject {
     let transformationVersions: TransformationVersions
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
@@ -58,11 +52,11 @@ open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol 
         super.init()
     }
     
-    open func rotateSecret(newVersion: Int, updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
+    open func rotateSecret(updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
         let updateTokenData = Data(base64Encoded: updateToken)!
         let newDeblindedPassword = try self.pythiaCrypto.updateDeblindedWithToken(deblindedPassword: pythiaUser.deblindedPassword, updateToken: updateTokenData)
                 
-        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: newVersion)
+        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: self.transformationVersions.publicKey.0)
     }
     
     open func register(password: String) -> GenericOperation<PythiaUser> {
