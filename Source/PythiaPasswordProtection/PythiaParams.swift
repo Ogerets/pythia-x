@@ -35,41 +35,30 @@
 //
 
 import Foundation
+import VirgilSDK
+import VirgilCryptoApiImpl
 
-struct PythiaConfig {
-    let oldTransformationPublicKey: (Int, Data)?
-    let transformationPublicKey: (Int, Data)
+struct PythiaParams {
+    let transformationVersions: TransformationVersions
+    let client: PythiaClientProtocol
+    let accessTokenProvider: AccessTokenProvider
     
-    init(transformationPublicKey: (Int, String), oldTransformationPublicKey: (Int, String)? = nil) throws {
-        guard let trPubData = Data(base64Encoded: transformationPublicKey.1) else {
-            throw NSError()
-        }
+    static func makeParams(apiKey: VirgilPrivateKey, apiPublicKeyIdentifier: String, appId: String, transformationPublicKey: String, oldTransformationPublicKey: String? = nil) throws -> PythiaParams {
+        let client = PythiaClient()
+        let generator = JwtGenerator(apiKey: apiKey, apiPublicKeyIdentifier: apiPublicKeyIdentifier, accessTokenSigner: VirgilAccessTokenSigner(virgilCrypto: VirgilCrypto()), appId: appId, ttl: /* 1 hour */ 60 * 60)
         
-        self.transformationPublicKey = (transformationPublicKey.0, trPubData)
-        
-        if let oldTrKey = oldTransformationPublicKey {
-            guard let oldTrPubData = Data(base64Encoded: oldTrKey.1) else {
-                throw NSError()
+        let accessTokenProvider = CachingJwtProvider { tokenContext, completion in
+            do {
+                let token = try generator.generateToken(identity: "PYTHIA-CLIENT")
+                completion(token.stringRepresentation(), nil)
             }
-            
-            self.oldTransformationPublicKey = (oldTrKey.0, oldTrPubData)
-        }
-        else {
-            self.oldTransformationPublicKey = nil
-        }
-    }
-    
-    func transformationPublicKey(forVersion version: Int) throws -> Data {
-        if version == self.transformationPublicKey.0 {
-            return self.transformationPublicKey.1
+            catch {
+                completion(nil, error)
+            }
         }
         
+        let transformationVersions = try TransformationVersions(publicKey: transformationPublicKey, oldPublicKey: oldTransformationPublicKey)
         
-        if let old = self.oldTransformationPublicKey, version == old.0 {
-            return old.1
-        }
-        
-        // Something very bad has happened. Probably, unsuccessful migration
-        throw NSError()
+        return PythiaParams(transformationVersions: transformationVersions, client: client, accessTokenProvider: accessTokenProvider)
     }
 }

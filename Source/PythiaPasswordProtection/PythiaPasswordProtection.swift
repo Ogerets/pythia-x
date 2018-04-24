@@ -44,15 +44,15 @@ public protocol PythiaPasswordProtectionProtocol: class {
 }
 
 open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol {
-    let config: PythiaConfig
+    let transformationVersions: TransformationVersions
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
     let pythiaCrypto: PythiaCryptoProtocol // FIXME: This should be removed after Pythia crypto operations are available in VirgilCrypto
     
-    init(config: PythiaConfig, client: PythiaClientProtocol = PythiaClient(), accessTokenProvider: AccessTokenProvider, pythiaCrypto: PythiaCryptoProtocol) {
-        self.config = config
-        self.client = client
-        self.accessTokenProvider = accessTokenProvider
+    init(params: PythiaParams, /*This should be removed. Use crypto packet*/ pythiaCrypto: PythiaCryptoProtocol) {
+        self.transformationVersions = params.transformationVersions
+        self.client = params.client
+        self.accessTokenProvider = params.accessTokenProvider
         self.pythiaCrypto = pythiaCrypto
         
         super.init()
@@ -81,10 +81,9 @@ open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol 
                 return
             }
             
-            // TODO: Update TokenContext
-            let tokenContext = TokenContext(operation: "get", forceReload: false)
-            let getTokenOperation = OperationsUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
-            let latestTransformationPublicKey = self.config.transformationPublicKey
+            let tokenContext = TokenContext(service: "pythia", operation: "transform", forceReload: false)
+            let getTokenOperation = OperationUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
+            let latestTransformationPublicKey = self.transformationVersions.publicKey
             let transformOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: salt, version: latestTransformationPublicKey.0, proof: true)
             let verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: salt, transformationPublicKey: latestTransformationPublicKey.1)
             let finishRegistrationOperation = CallbackOperation<PythiaUser> { operation, completion in
@@ -102,7 +101,7 @@ open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol 
                 }
             }
             
-            let completionOperation = OperationsUtils.makeCompletionOperation(completion: completion)
+            let completionOperation = OperationUtils.makeCompletionOperation(completion: completion)
             
             transformOperation.addDependency(getTokenOperation)
             
@@ -123,8 +122,8 @@ open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol 
     open func authenticate(password: String, pythiaUser: PythiaUser, proof: Bool) -> GenericOperation<Bool> {
         return CallbackOperation { _, completion in
             // TODO: Update TokenContext
-            let tokenContext = TokenContext(operation: "get", forceReload: false)
-            let getTokenOperation = OperationsUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
+            let tokenContext = TokenContext(service: "pythia", operation: "transform", forceReload: false)
+            let getTokenOperation = OperationUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
             
             let blindedPassword: Data
             let blindingSecret: Data
@@ -134,7 +133,7 @@ open class PythiaPasswordProtection: NSObject, PythiaPasswordProtectionProtocol 
                 blindedPassword = blinded.0
                 blindingSecret = blinded.1
                 
-                transformationPublicKey = try self.config.transformationPublicKey(forVersion: pythiaUser.version)
+                transformationPublicKey = try self.transformationVersions.publicKey(forVersion: pythiaUser.version)
             }
             catch {
                 completion(nil, error)
