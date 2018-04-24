@@ -115,7 +115,6 @@ open class Pythia: NSObject {
     
     open func authenticate(password: String, pythiaUser: PythiaUser, proof: Bool) -> GenericOperation<Bool> {
         return CallbackOperation { _, completion in
-            // TODO: Update TokenContext
             let tokenContext = TokenContext(service: "pythia", operation: "transform", forceReload: false)
             let getTokenOperation = OperationUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
             
