@@ -43,7 +43,7 @@ open class Pythia: NSObject {
     let accessTokenProvider: AccessTokenProvider
     let pythiaCrypto: PythiaCryptoProtocol // FIXME: This should be removed after Pythia crypto operations are available in VirgilCrypto
     
-    init(params: PythiaParams, /*This should be removed. Use crypto packet*/ pythiaCrypto: PythiaCryptoProtocol) {
+    init(params: PythiaContext, /*This should be removed. Use crypto packet*/ pythiaCrypto: PythiaCryptoProtocol) {
         self.proofKeys = params.proofKeys
         self.client = params.client
         self.accessTokenProvider = params.accessTokenProvider

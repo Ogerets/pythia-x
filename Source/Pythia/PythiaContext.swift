@@ -38,12 +38,12 @@ import Foundation
 import VirgilSDK
 import VirgilCryptoApiImpl
 
-struct PythiaParams {
+struct PythiaContext {
     let proofKeys: ProofKeys
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
     
-    static func makeParams(apiKey: String, apiPublicKeyIdentifier: String, appId: String, proofKeys: [String]) throws -> PythiaParams {
+    static func makeContext(apiKey: String, apiPublicKeyIdentifier: String, appId: String, proofKeys: [String]) throws -> PythiaContext {
         let client = PythiaClient()
         
         guard let apiKeyData = Data(base64Encoded: apiKey) else {
@@ -66,6 +66,6 @@ struct PythiaParams {
         
         let proofKeys = try ProofKeys(proofKeys: proofKeys)
         
-        return PythiaParams(proofKeys: proofKeys, client: client, accessTokenProvider: accessTokenProvider)
+        return PythiaContext(proofKeys: proofKeys, client: client, accessTokenProvider: accessTokenProvider)
     }
 }
