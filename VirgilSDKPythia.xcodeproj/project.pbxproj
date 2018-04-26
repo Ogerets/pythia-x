@@ -21,7 +21,8 @@
 		420121172077C2BB00632FD9 /* VSCCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42DD29DC2075213900C9C014 /* VSCCrypto.framework */; };
 		4267C691208A2035007EAEB2 /* PythiaParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4267C68F208A2035007EAEB2 /* PythiaParams.swift */; };
 		4267C692208A2035007EAEB2 /* PythiaUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4267C690208A2035007EAEB2 /* PythiaUser.swift */; };
-		4277274E208F46FB00E15FE9 /* TransformationVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4277274D208F46FB00E15FE9 /* TransformationVersions.swift */; };
+		4277274E208F46FB00E15FE9 /* ProofKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4277274D208F46FB00E15FE9 /* ProofKeys.swift */; };
+		4277275E2091E70500E15FE9 /* ProofKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4277275D2091E70500E15FE9 /* ProofKey.swift */; };
 		42DD29A220751EAC00C9C014 /* VirgilSDKPythia.h in Headers */ = {isa = PBXBuildFile; fileRef = 42DD29A120751EAC00C9C014 /* VirgilSDKPythia.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		42DD2A3C207522DA00C9C014 /* VirgilSDKPythia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42DD298F20751B1A00C9C014 /* VirgilSDKPythia.framework */; };
 		42DD2A442075234C00C9C014 /* VirgilSDKPythia_iOS_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42DD2A432075234C00C9C014 /* VirgilSDKPythia_iOS_Tests.m */; };
@@ -281,7 +282,8 @@
 		4201210A2077C1E800632FD9 /* PythiaCryptoProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythiaCryptoProtocol.swift; sourceTree = "<group>"; };
 		4267C68F208A2035007EAEB2 /* PythiaParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PythiaParams.swift; sourceTree = "<group>"; };
 		4267C690208A2035007EAEB2 /* PythiaUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PythiaUser.swift; sourceTree = "<group>"; };
-		4277274D208F46FB00E15FE9 /* TransformationVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformationVersions.swift; sourceTree = "<group>"; };
+		4277274D208F46FB00E15FE9 /* ProofKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProofKeys.swift; sourceTree = "<group>"; };
+		4277275D2091E70500E15FE9 /* ProofKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProofKey.swift; sourceTree = "<group>"; };
 		42DD298F20751B1A00C9C014 /* VirgilSDKPythia.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirgilSDKPythia.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		42DD299320751B1A00C9C014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		42DD29A120751EAC00C9C014 /* VirgilSDKPythia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirgilSDKPythia.h; sourceTree = "<group>"; };
@@ -342,7 +344,8 @@
 				4267C690208A2035007EAEB2 /* PythiaUser.swift */,
 				420120FC2076294F00632FD9 /* Pythia.swift */,
 				4201210020764AB500632FD9 /* Pythia+Operations.swift */,
-				4277274D208F46FB00E15FE9 /* TransformationVersions.swift */,
+				4277274D208F46FB00E15FE9 /* ProofKeys.swift */,
+				4277275D2091E70500E15FE9 /* ProofKey.swift */,
 			);
 			path = Pythia;
 			sourceTree = "<group>";
@@ -788,7 +791,8 @@
 				420120FA207625F500632FD9 /* PythiaClient+Queries.swift in Sources */,
 				420120F6207625F500632FD9 /* PythiaClientProtocol.swift in Sources */,
 				420120F7207625F500632FD9 /* PythiaClient.swift in Sources */,
-				4277274E208F46FB00E15FE9 /* TransformationVersions.swift in Sources */,
+				4277274E208F46FB00E15FE9 /* ProofKeys.swift in Sources */,
+				4277275E2091E70500E15FE9 /* ProofKey.swift in Sources */,
 				420120FD2076294F00632FD9 /* Pythia.swift in Sources */,
 				4267C691208A2035007EAEB2 /* PythiaParams.swift in Sources */,
 				4201210520779A3300632FD9 /* Proof.swift in Sources */,

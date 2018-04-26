@@ -38,12 +38,12 @@ import Foundation
 import VirgilSDK
 
 extension Pythia {
-    func makeTransformOperation(blindedPassword: Data, salt: Data, version: Int, proof: Bool) -> GenericOperation<TransformResponse> {
+    func makeTransformOperation(blindedPassword: Data, salt: Data, version: UInt, prove: Bool) -> GenericOperation<TransformResponse> {
         return CallbackOperation { operation, completion in
             do {
                 let token: AccessToken = try operation.findDependencyResult()
                 
-                let transformResponse = try self.client.transformPassword(salt: salt, blindedPassword: blindedPassword, version: version, includeProof: proof, token: token.stringRepresentation())
+                let transformResponse = try self.client.transformPassword(salt: salt, blindedPassword: blindedPassword, version: version, includeProof: prove, token: token.stringRepresentation())
                 
                 completion(transformResponse, nil)
             }
@@ -53,7 +53,7 @@ extension Pythia {
         }
     }
     
-    func makeVerifyOperation(blindedPassword: Data, salt: Data, transformationPublicKey: Data) -> GenericOperation<Bool> {
+    func makeVerifyOperation(blindedPassword: Data, salt: Data, proofKey: Data) -> GenericOperation<Bool> {
         return CallbackOperation { operation, completion in
             let transformResponse: TransformResponse
             do {
@@ -71,7 +71,7 @@ extension Pythia {
             
             let verified = self.pythiaCrypto.verify(transformedPassword: transformResponse.transformedPassword,
                                                     blindedPassword: blindedPassword, tweak: salt,
-                                                    transofrmationPublicKey: transformationPublicKey, proofC: proof.c, proofU: proof.u)
+                                                    transofrmationPublicKey: proofKey, proofC: proof.c, proofU: proof.u)
             
             guard verified else {
                 completion(false, nil)

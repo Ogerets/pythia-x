@@ -39,26 +39,33 @@ import VirgilSDK
 import VirgilCryptoApiImpl
 
 struct PythiaParams {
-    let transformationVersions: TransformationVersions
+    let proofKeys: ProofKeys
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
     
-    static func makeParams(apiKey: VirgilPrivateKey, apiPublicKeyIdentifier: String, appId: String, transformationPublicKey: String, oldTransformationPublicKey: String? = nil) throws -> PythiaParams {
+    static func makeParams(apiKey: String, apiPublicKeyIdentifier: String, appId: String, proofKeys: [String]) throws -> PythiaParams {
         let client = PythiaClient()
-        let generator = JwtGenerator(apiKey: apiKey, apiPublicKeyIdentifier: apiPublicKeyIdentifier, accessTokenSigner: VirgilAccessTokenSigner(virgilCrypto: VirgilCrypto()), appId: appId, ttl: /* 1 hour */ 60 * 60)
         
-        let accessTokenProvider = CachingJwtProvider { tokenContext, completion in
+        guard let apiKeyData = Data(base64Encoded: apiKey) else {
+            throw NSError()
+        }
+        
+        let apiPrivateKey = try VirgilCrypto().importPrivateKey(from: apiKeyData)
+        
+        let generator = JwtGenerator(apiKey: apiPrivateKey, apiPublicKeyIdentifier: apiPublicKeyIdentifier, accessTokenSigner: VirgilAccessTokenSigner(virgilCrypto: VirgilCrypto()), appId: appId, ttl: /* 1 hour */ 60 * 60)
+        
+        let accessTokenProvider = CachingJwtProvider(renewJwtCallback: { tokenContext, completion in
             do {
                 let token = try generator.generateToken(identity: "PYTHIA-CLIENT")
-                completion(token.stringRepresentation(), nil)
+                completion(token, nil)
             }
             catch {
                 completion(nil, error)
             }
-        }
+        })
         
-        let transformationVersions = try TransformationVersions(publicKey: transformationPublicKey, oldPublicKey: oldTransformationPublicKey)
+        let proofKeys = try ProofKeys(proofKeys: proofKeys)
         
-        return PythiaParams(transformationVersions: transformationVersions, client: client, accessTokenProvider: accessTokenProvider)
+        return PythiaParams(proofKeys: proofKeys, client: client, accessTokenProvider: accessTokenProvider)
     }
 }

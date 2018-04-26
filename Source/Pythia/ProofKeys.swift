@@ -36,17 +36,16 @@
 
 import Foundation
 
-struct TransformationVersions {
-    let publicKey: (Int, Data)
-    let oldPublicKey: (Int, Data)?
+struct ProofKeys {
+    let proofKeys: [ProofKey]
     
-    private static func parsePublicKey(_ string: String) throws -> (Int, Data) {
+    private static func parsePublicKey(_ string: String) throws -> ProofKey {
         let components = string.components(separatedBy: ".")
         guard components.count == 2 else {
             throw NSError()
         }
         
-        guard let version = Int(components[0]) else {
+        guard let version = UInt(components[0]) else {
             throw NSError()
         }
         
@@ -54,30 +53,28 @@ struct TransformationVersions {
             throw NSError()
         }
         
-        return (version, data)
+        return ProofKey(key: data, version: version)
     }
     
-    init(publicKey: String, oldPublicKey: String? = nil) throws {
-        self.publicKey = try TransformationVersions.parsePublicKey(publicKey)
-        
-        if let oldTrKey = oldPublicKey {
-            self.oldPublicKey = try TransformationVersions.parsePublicKey(oldTrKey)
-        }
-        else {
-            self.oldPublicKey = nil
-        }
+    init(proofKeys: [String]) throws {
+        self.proofKeys = try proofKeys.map({ try ProofKeys.parsePublicKey($0) }).sorted(by: { $0.version < $1.version })
     }
     
-    func publicKey(forVersion version: Int) throws -> Data {
-        if version == self.publicKey.0 {
-            return self.publicKey.1
+    func currentKey() throws -> ProofKey {
+        guard let proofKey = self.proofKeys.first else {
+            // Something very bad has happened. Probably, unsuccessful migration
+            throw NSError()
         }
         
-        if let old = self.oldPublicKey, version == old.0 {
-            return old.1
+        return proofKey
+    }
+    
+    func proofKey(forVersion version: UInt) throws -> Data {
+        guard let key = self.proofKeys.first(where: { $0.version == version })?.key else {
+            // Something very bad has happened. Probably, unsuccessful migration
+            throw NSError()
         }
         
-        // Something very bad has happened. Probably, unsuccessful migration
-        throw NSError()
+        return key
     }
 }

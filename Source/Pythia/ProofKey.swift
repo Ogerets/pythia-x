@@ -36,8 +36,7 @@
 
 import Foundation
 
-public struct PythiaUser {
-    let salt: Data
-    let deblindedPassword: Data
+struct ProofKey {
+    let key: Data
     let version: UInt
 }

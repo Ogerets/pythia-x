@@ -38,13 +38,13 @@ import Foundation
 import VirgilSDK
 
 open class Pythia: NSObject {
-    let transformationVersions: TransformationVersions
+    let proofKeys: ProofKeys
     let client: PythiaClientProtocol
     let accessTokenProvider: AccessTokenProvider
     let pythiaCrypto: PythiaCryptoProtocol // FIXME: This should be removed after Pythia crypto operations are available in VirgilCrypto
     
     init(params: PythiaParams, /*This should be removed. Use crypto packet*/ pythiaCrypto: PythiaCryptoProtocol) {
-        self.transformationVersions = params.transformationVersions
+        self.proofKeys = params.proofKeys
         self.client = params.client
         self.accessTokenProvider = params.accessTokenProvider
         self.pythiaCrypto = pythiaCrypto
@@ -56,7 +56,7 @@ open class Pythia: NSObject {
         let updateTokenData = Data(base64Encoded: updateToken)!
         let newDeblindedPassword = try self.pythiaCrypto.updateDeblindedWithToken(deblindedPassword: pythiaUser.deblindedPassword, updateToken: updateTokenData)
                 
-        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: self.transformationVersions.publicKey.0)
+        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: try self.proofKeys.currentKey().version)
     }
     
     open func register(password: String) -> GenericOperation<PythiaUser> {
@@ -64,11 +64,15 @@ open class Pythia: NSObject {
             let salt: Data
             let blindedPassword: Data
             let blindingSecret: Data
+            let latestProofKey: ProofKey
             do {
                 salt = try self.pythiaCrypto.generateSalt()
+                
                 let blinded = try self.pythiaCrypto.blind(password: password)
                 blindedPassword = blinded.0
                 blindingSecret = blinded.1
+                
+                latestProofKey = try self.proofKeys.currentKey()
             }
             catch {
                 completion(nil, error)
@@ -77,16 +81,15 @@ open class Pythia: NSObject {
             
             let tokenContext = TokenContext(service: "pythia", operation: "transform", forceReload: false)
             let getTokenOperation = OperationUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
-            let latestTransformationPublicKey = self.transformationVersions.publicKey
-            let transformOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: salt, version: latestTransformationPublicKey.0, proof: true)
-            let verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: salt, transformationPublicKey: latestTransformationPublicKey.1)
+            let transformOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: salt, version: latestProofKey.version, prove: true)
+            let verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: salt, proofKey: latestProofKey.key)
             let finishRegistrationOperation = CallbackOperation<PythiaUser> { operation, completion in
                 do {
                     let transformResponse: TransformResponse = try operation.findDependencyResult()
                     
                     let deblindedPassword = try self.pythiaCrypto.deblind(transformedPassword: transformResponse.transformedPassword, blindingSecret: blindingSecret)
                     
-                    let registrationResponse = PythiaUser(salt: salt, deblindedPassword: deblindedPassword, version: latestTransformationPublicKey.0)
+                    let registrationResponse = PythiaUser(salt: salt, deblindedPassword: deblindedPassword, version: latestProofKey.version)
                     
                     completion(registrationResponse, nil)
                 }
@@ -113,31 +116,31 @@ open class Pythia: NSObject {
         }
     }
     
-    open func authenticate(password: String, pythiaUser: PythiaUser, proof: Bool) -> GenericOperation<Bool> {
+    open func authenticate(password: String, pythiaUser: PythiaUser, prove: Bool) -> GenericOperation<Bool> {
         return CallbackOperation { _, completion in
             let tokenContext = TokenContext(service: "pythia", operation: "transform", forceReload: false)
             let getTokenOperation = OperationUtils.makeGetTokenOperation(tokenContext: tokenContext, accessTokenProvider: self.accessTokenProvider)
             
             let blindedPassword: Data
             let blindingSecret: Data
-            let transformationPublicKey: Data
+            let proofKey: Data
             do {
                 let blinded = try self.pythiaCrypto.blind(password: password)
                 blindedPassword = blinded.0
                 blindingSecret = blinded.1
                 
-                transformationPublicKey = try self.transformationVersions.publicKey(forVersion: pythiaUser.version)
+                proofKey = try self.proofKeys.proofKey(forVersion: pythiaUser.version)
             }
             catch {
                 completion(nil, error)
                 return
             }
             
-            let transformPasswordOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: pythiaUser.salt, version: pythiaUser.version, proof: proof)
+            let transformPasswordOperation = self.makeTransformOperation(blindedPassword: blindedPassword, salt: pythiaUser.salt, version: pythiaUser.version, prove: prove)
             
             let verifyOperation: GenericOperation<Bool>
-            if proof {
-                verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: pythiaUser.salt, transformationPublicKey: transformationPublicKey)
+            if prove {
+                verifyOperation = self.makeVerifyOperation(blindedPassword: blindedPassword, salt: pythiaUser.salt, proofKey: proofKey)
             }
             else {
                 verifyOperation = CallbackOperation { _, completion in
