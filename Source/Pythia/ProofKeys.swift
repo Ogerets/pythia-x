@@ -41,16 +41,10 @@ struct ProofKeys {
     
     private static func parsePublicKey(_ string: String) throws -> ProofKey {
         let components = string.components(separatedBy: ".")
-        guard components.count == 2 else {
-            throw NSError()
-        }
-        
-        guard let version = UInt(components[0]) else {
-            throw NSError()
-        }
-        
-        guard let data = Data(base64Encoded: components[1]) else {
-            throw NSError()
+        guard components.count == 3, components[0] == "PK",
+            let version = UInt(components[1]),
+            let data = Data(base64Encoded: components[2]) else {
+                throw NSError() // Incorrect format
         }
         
         return ProofKey(key: data, version: version)

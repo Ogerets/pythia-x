@@ -53,10 +53,25 @@ open class Pythia: NSObject {
     }
     
     open func rotateSecret(updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
-        let updateTokenData = Data(base64Encoded: updateToken)!
+        let components = updateToken.components(separatedBy: ".")
+        guard components.count == 4, components[0] == "UT",
+            let prevVersion = UInt(components[1]),
+            let nextVersion = UInt(components[2]),
+            let updateTokenData = Data(base64Encoded: components[3]) else {
+                throw NSError()  // Incorrect format
+        }
+        
+        guard pythiaUser.version != nextVersion else {
+            throw NSError() // Already migrated
+        }
+        
+        guard pythiaUser.version == prevVersion else {
+            throw NSError() // Wrong user version
+        }
+        
         let newDeblindedPassword = try self.pythiaCrypto.updateDeblindedWithToken(deblindedPassword: pythiaUser.deblindedPassword, updateToken: updateTokenData)
                 
-        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: try self.proofKeys.currentKey().version)
+        return PythiaUser(salt: pythiaUser.salt, deblindedPassword: newDeblindedPassword, version: nextVersion)
     }
     
     open func register(password: String) -> GenericOperation<PythiaUser> {
