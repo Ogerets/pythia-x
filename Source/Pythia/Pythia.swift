@@ -52,7 +52,7 @@ open class Pythia: NSObject {
         super.init()
     }
     
-    open func rotateSecret(updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
+    open func updateUser(updateToken: String, pythiaUser: PythiaUser) throws -> PythiaUser {
         let components = updateToken.components(separatedBy: ".")
         guard components.count == 4, components[0] == "UT",
             let prevVersion = UInt(components[1]),
