@@ -57,7 +57,11 @@ struct ProofKeys {
     }
     
     init(proofKeys: [String]) throws {
-        self.proofKeys = try proofKeys.map({ try ProofKeys.parsePublicKey($0) }).sorted(by: { $0.version < $1.version })
+        guard proofKeys.count > 0 else {
+            throw NSError()
+        }
+        
+        self.proofKeys = try proofKeys.map({ try ProofKeys.parsePublicKey($0) }).sorted(by: { $0.version > $1.version })
     }
     
     func currentKey() throws -> ProofKey {
